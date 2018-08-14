@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_cb_design_topic">
+    <sys_cb_design_topic action="INSERT_OR_UPDATE">
+        <compiled_topic display_value="_PRVW__43ed40eb3af35b00987775cf53ff5c04">47ed40eb13f35b00071950f32244b005</compiled_topic>
+        <design_definition>{"type":"FlowTopic","triggers":[{"type":"Trigger","name":"664de4ae10f64da29bba0637e2a33dfa","triggerType":"request","applicability":{"type":"Applicability","mode":"script","value":""},"id":"664de4ae10f64da29bba0637e2a33dfa"}],"goals":[{"name":"primary","trigger_id":"664de4ae10f64da29bba0637e2a33dfa","nodes":[{"type":"StartGoal","goal_id":"4c1271a7d1fc4fc1acf23895884c7b54","greeting_msg":{"type":"String","mode":"string","value":""},"id":"2da90eedd47f43b2a39963ea20edeb5b","name":"Start"},{"type":"TerminateGoal","goal_id":"4c1271a7d1fc4fc1acf23895884c7b54","confirmation_msg":{"type":"String","mode":"string","value":""},"id":"9c25abb5304a4617a59c16fb8f38238f","name":"End"},{"type":"ReferenceChoiceInputPrompt","mode":"external","id":"ce13990c499f4ff4aaf8776807aad6ba","name":"Show Services","goal_id":"4c1271a7d1fc4fc1acf23895884c7b54","variable_id":"1dd8b175dde848868cec9cb123872ff5","message":{"type":"String","mode":"string","value":"Here are the services that are currently in a critical state."},"optional":false,"expression_mode":"script","script":"(function execute() {\n    var options = [];    \n\n    // query current and future planned outages \n    var gr = new GlideRecord('cmdb_ci_service_auto');\n    gr.addQuery(\"operational_status\",'1') //op status is operational\n    gr.addQuery(\"severity\", \"1\") // severity is critical\n    gr.addQuery(\"owned_by\", gs.getUserID());\n    gr.orderBy('busines_criticality');\n    gr.query();\n\n    while(gr.next()) {\n        options.push({ 'value': gr.getUniqueValue(), 'label': gr.getDisplayValue('name') });\n    }\n    \n    return options;    \n})()\n","no_options_found_message":{"type":"String","mode":"string","value":"No services in critical state"}},{"type":"InputPrompt","variable_id":"c50fff3f4e4e4955a6f1e7027ca54385","message":{"type":"String","mode":"string","value":"test"},"optional":false,"id":"ad5ee1a39e3446bf86f248db5f74a1f9","name":"test","goal_id":"4c1271a7d1fc4fc1acf23895884c7b54"}],"edges":[{"type":"Edge","source_node_id":"ce13990c499f4ff4aaf8776807aad6ba","target_node_id":"9c25abb5304a4617a59c16fb8f38238f","id":"c30bad271cb64ea5b4c6cc9e4c4257a7"},{"type":"Edge","source_node_id":"2da90eedd47f43b2a39963ea20edeb5b","target_node_id":"ad5ee1a39e3446bf86f248db5f74a1f9","id":"4f04ef2f401c45e5886e39f7585349d0"},{"type":"Edge","source_node_id":"ad5ee1a39e3446bf86f248db5f74a1f9","target_node_id":"ce13990c499f4ff4aaf8776807aad6ba","id":"a69e02da9a2242759a38c0b3ec82b558"}],"id":"4c1271a7d1fc4fc1acf23895884c7b54"}],"script_variables":[],"glide_variables":[{"type":"Choice","choices":[],"id":"1dd8b175dde848868cec9cb123872ff5","name":"show_services","table":""},{"type":"String","name":"test","id":"c50fff3f4e4e4955a6f1e7027ca54385"}],"applicability":{"type":"Applicability","mode":"script","value":""},"roles":[],"scope":"122ec67913fb1b0058efb1422244b09f","id":"094f02f913fb1b0058efb1422244b05f","name":"_PRVW__43ed40eb3af35b00987775cf53ff5c04","key_phrases":["ITOM Conversation - Service Owner","Service Status","outage","down","working","system status"]}</design_definition>
+        <design_topic_id>094f02f913fb1b0058efb1422244b05f</design_topic_id>
+        <name>_PRVW__43ed40eb3af35b00987775cf53ff5c04</name>
+        <sys_class_name>sys_cb_design_topic</sys_class_name>
+        <sys_created_by>aleck.lin</sys_created_by>
+        <sys_created_on>2018-08-14 06:20:01</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>0bed84eb13f35b00071950f32244b0b7</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>FlowTopic</sys_name>
+        <sys_package display_value="Virtual Agent ITOM" source="x_snc_va_itom">122ec67913fb1b0058efb1422244b09f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Virtual Agent ITOM">122ec67913fb1b0058efb1422244b09f</sys_scope>
+        <sys_update_name>sys_cb_design_topic_0bed84eb13f35b00071950f32244b0b7</sys_update_name>
+        <sys_updated_by>aleck.lin</sys_updated_by>
+        <sys_updated_on>2018-08-14 06:20:01</sys_updated_on>
+        <type>FlowTopic</type>
+    </sys_cb_design_topic>
+</record_update>

@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_cb_topic">
+    <sys_cb_topic action="INSERT_OR_UPDATE">
+        <applicability/>
+        <connect_queue/>
+        <description>The VA conversation will focus on interactions that Service Owners will find helpful</description>
+        <graph>{
+  "graph_api_version": "1.0.3",
+  "goals": {
+    "4c1271a7d1fc4fc1acf23895884c7b54": {
+      "id": "4c1271a7d1fc4fc1acf23895884c7b54",
+      "trigger": {
+        "type": "primary"
+      },
+      "name": "primary",
+      "applicability": "",
+      "description": "",
+      "nodes": {
+        "2da90eedd47f43b2a39963ea20edeb5b": {
+          "id": "2da90eedd47f43b2a39963ea20edeb5b",
+          "stepType": "Start",
+          "name": "Start",
+          "greetingResponse": {
+            "mode": "simple",
+            "value": ""
+          }
+        },
+        "9c25abb5304a4617a59c16fb8f38238f": {
+          "id": "9c25abb5304a4617a59c16fb8f38238f",
+          "stepType": "TerminateGoal",
+          "name": "End",
+          "confirmationMessage": {
+            "mode": "simple",
+            "value": ""
+          }
+        },
+        "ce13990c499f4ff4aaf8776807aad6ba": {
+          "stepType": "ReferenceChoicePrompt",
+          "name": "List Services",
+          "prompt": {
+            "value": "Here are your services that are currently in a critical state.",
+            "mode": "simple"
+          },
+          "confirmMessage": {
+            "value": "",
+            "mode": "simple"
+          },
+          "acknowledgeMsg": {
+            "value": "",
+            "mode": "simple"
+          },
+          "applicability": "",
+          "optional": false,
+          "defaultValue": {
+            "value": "",
+            "mode": "simple"
+          },
+          "variableId": "1dd8b175dde848868cec9cb123872ff5",
+          "id": "ce13990c499f4ff4aaf8776807aad6ba",
+          "mode": "external",
+          "script": "(function execute() {\n    var options = [];    \n\n    // query current and future planned outages \n    var gr = new GlideRecord('cmdb_ci_service_auto');\n    gr.addQuery(\"operational_status\",'1') //op status is operational\n    gr.addQuery(\"severity\", \"1\") // severity is critical\n    gr.addQuery(\"owned_by\", gs.getUserID());\n    gr.orderBy('busines_criticality');\n    gr.query();\n\n    while(gr.next()) {\n        options.push({ 'value': gr.getUniqueValue(), 'label': gr.getDisplayValue('name') });\n    }\n    \n    return options;    \n})()\n",
+          "noRecordsResponseMsg": {
+            "value": "No services in critical state",
+            "mode": "simple"
+          }
+        },
+        "cd63d12cb7a24c78a0a3ef775b8b7f25": {
+          "id": "cd63d12cb7a24c78a0a3ef775b8b7f25",
+          "stepType": "TextOutput",
+          "name": "Display Service",
+          "value": {
+            "value": "(function execute() {\n    var fields = ['name', 'severity', 'busines_criticality', \"owned_by\", \"email\"];\n    var card = new global.VaRecordCardRenderer(true);\n\n    var msg = '';\n    var gr = new GlideRecord('cmdb_ci_service_auto');\n    if ( gr.get(vaInputs.list_services) ) {\n        var data = card.createFields(fields, gr);\n        //var affectedValue = gr.getDisplayValue('cmdb_ci');\n        //var affectedSystem = card.createStaticField(gs.getMessage('Affected System'), affectedValue, null); //Change label text for CI to Affected System\n        //var affectedSystem = card.createStaticField(\"hello\", \"world\"); //Change label text for CI to Affected System        \n        //data.unshift(affectedSystem);\n        msg = card.renderCard(null, data);\n    }\n    return msg;\n})()\n",
+            "mode": "script"
+          },
+          "applicability": ""
+        },
+        "966c76b06c7c4677b0d8e47f045ab926": {
+          "stepType": "ReferenceChoicePrompt",
+          "name": "Outage Options",
+          "prompt": {
+            "value": "What would you like to do?",
+            "mode": "simple"
+          },
+          "confirmMessage": {
+            "value": "",
+            "mode": "simple"
+          },
+          "acknowledgeMsg": {
+            "value": "",
+            "mode": "simple"
+          },
+          "applicability": "",
+          "optional": false,
+          "defaultValue": {
+            "value": "",
+            "mode": "simple"
+          },
+          "variableId": "fd56b75311f04c7fa3d5e9a848386baf",
+          "id": "966c76b06c7c4677b0d8e47f045ab926",
+          "mode": "external",
+          "script": "(function execute() {\n    var options = [];\n\n    var incident = getOpenIncident(vaInputs.list_services);\n\n    if (gs.nil(incident))\n        options.push({ 'value': 'incident', 'label': 'Open Incident' });\n    else {\n        if (isRoomForEscalation(incident))\n            options.push({ 'value': 'escalation', 'label': 'Escalate Incident Priority' });\n\n        if (isMajorIncident(incident))\n            options.push({ 'value': 'major', 'label': 'Promote to Major Incident' });\n    }\n    \n    options.push({ 'value': 'more', 'label': 'Show more critical services' });\n    options.push({ 'value': 'done', 'label': 'Done' });\n\n\n    return options;\n\n\n    function getOpenIncident(service) {  \n        var gr = new GlideRecord(\"incident\");\n        gr.addQuery(\"cmdb_ci\", service);\n        gr.addQuery(\"state\", \"!=\", ['6', '7', '8']);\n        gr.orderByDesc(\"sys_created_on\");\n        gr.setLimit(1);\n        gr.query();\n        if (gr.next())\n            return gr.sys_id + '';\n\n        return;\n    }\n\n    function isRoomForEscalation(incident) {\n        var gr = new GlideRecord(\"incident\");\n        gr.get(incident);\n        \n        if (gr.priority &gt; 1) \n            return true;\n\n        return false;\n    }    \n\n    function isMajorIncident(incident) {\n        return true;\n    }    \n})()\n",
+          "noRecordsResponseMsg": {
+            "value": "No options available currently",
+            "mode": "simple"
+          }
+        },
+        "2be710c275fe476fb56ba644ffd7a3d1": {
+          "id": "2be710c275fe476fb56ba644ffd7a3d1",
+          "stepType": "Decision",
+          "name": "Decision"
+        },
+        "14818b1374c44e28bcdabb6aaba69fd2": {
+          "id": "14818b1374c44e28bcdabb6aaba69fd2",
+          "stepType": "TextOutput",
+          "name": "Open Incident",
+          "value": {
+            "value": "(function execute() {\n    var appSrv = new GlideRecord('cmdb_ci_service_auto');\n    appSrv.get(vaInputs.list_services);\n\n\n    var gr = new GlideRecord(\"incident\");\n    gr.short_description = \"The service is in a critical state.\"\n    gr.cmdb_ci = vaInputs.list_services;\n    var sys_id = gr.insert();\n\n    return gr.number + \" has been created for \" + appSrv.name;\n\n\n})()\n",
+            "mode": "script"
+          },
+          "applicability": ""
+        },
+        "44075498d44e47dc832d118d61b41e02": {
+          "id": "44075498d44e47dc832d118d61b41e02",
+          "stepType": "TextOutput",
+          "name": "Escalate priority",
+          "value": {
+            "value": "(function execute() {\n\n    var incident = getOpenIncident(vaInputs.list_services);\n\ngs.info(\"the incident is \" + incident);\n\n    var gr = new GlideRecord(\"incident\");\n    gr.get(incident);\n\ngs.info(\"the priority is \" + gr.priority);\n    gr.priority = parseInt(gr.priority) - 1;\ngs.info(\"the priority now is \" + gr.priority);\n\n    gr.update();\n\n    return 'Escalated the incident priority to ' + gr.priority.getDisplayValue();\n\n    function getOpenIncident(service) {\n        var gr = new GlideRecord(\"incident\");\n        gr.addQuery(\"cmdb_ci\", service);\n        gr.addQuery(\"state\", \"!=\", ['6', '7', '8']);\n        gr.orderByDesc(\"sys_created_on\");\n        gr.setLimit(1);\n        gr.query();\n        if (gr.next())\n            return gr.sys_id + '';\n\n        return;\n    }\n\n})()\n",
+            "mode": "script"
+          },
+          "applicability": ""
+        },
+        "2554b43e241a443b8e013c31b6024273": {
+          "id": "2554b43e241a443b8e013c31b6024273",
+          "stepType": "TextOutput",
+          "name": "Service detail",
+          "value": {
+            "value": "Here's the detail for the service",
+            "mode": "simple"
+          },
+          "applicability": ""
+        }
+      },
+      "edges": [
+        {
+          "id": "ecca09d9139b4648808f074a5010bb2e",
+          "edgeType": "Edge",
+          "source": "cd63d12cb7a24c78a0a3ef775b8b7f25",
+          "target": "966c76b06c7c4677b0d8e47f045ab926",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "4f04ef2f401c45e5886e39f7585349d0",
+          "edgeType": "Edge",
+          "source": "2da90eedd47f43b2a39963ea20edeb5b",
+          "target": "ce13990c499f4ff4aaf8776807aad6ba",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "6012f6c756a94c959f6704fc3c8c6de1",
+          "edgeType": "Edge",
+          "source": "966c76b06c7c4677b0d8e47f045ab926",
+          "target": "2be710c275fe476fb56ba644ffd7a3d1",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "5c8326f1c56448da9095ec2aa1cbc2d7",
+          "edgeType": "Branch",
+          "source": "2be710c275fe476fb56ba644ffd7a3d1",
+          "target": "9c25abb5304a4617a59c16fb8f38238f",
+          "sourcePort": "",
+          "targetPort": "",
+          "expression": "(function execute() {\n    return vaInputs.outage_options == 'done';\n})()\n",
+          "label": "Done"
+        },
+        {
+          "id": "2d84530dc4e64558a275f422e9d02476",
+          "edgeType": "Branch",
+          "source": "2be710c275fe476fb56ba644ffd7a3d1",
+          "target": "9c25abb5304a4617a59c16fb8f38238f",
+          "sourcePort": "",
+          "targetPort": "",
+          "expression": "(function execute() {\n    return vaInputs.outage_options == 'major';\n})()\n",
+          "label": "Major Incident"
+        },
+        {
+          "id": "518f5c53e66f49eab89660c4b3719516",
+          "edgeType": "Branch",
+          "source": "2be710c275fe476fb56ba644ffd7a3d1",
+          "target": "14818b1374c44e28bcdabb6aaba69fd2",
+          "sourcePort": "",
+          "targetPort": "",
+          "expression": "(function execute() {\n    return vaInputs.outage_options == 'incident';\n})()\n",
+          "label": "Incident"
+        },
+        {
+          "id": "ff594748ff4c4ab4997fa13886cdca50",
+          "edgeType": "Edge",
+          "source": "14818b1374c44e28bcdabb6aaba69fd2",
+          "target": "966c76b06c7c4677b0d8e47f045ab926",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "9f1fd48535de4f0ebe7ecdc8a471d4a2",
+          "edgeType": "Branch",
+          "source": "2be710c275fe476fb56ba644ffd7a3d1",
+          "target": "44075498d44e47dc832d118d61b41e02",
+          "sourcePort": "",
+          "targetPort": "",
+          "expression": "(function execute() {\n    return vaInputs.outage_options == 'escalation';\n})()\n",
+          "label": "Escalation"
+        },
+        {
+          "id": "ebf58478f06347a9b184cba6695d909b",
+          "edgeType": "Edge",
+          "source": "44075498d44e47dc832d118d61b41e02",
+          "target": "966c76b06c7c4677b0d8e47f045ab926",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "c30bad271cb64ea5b4c6cc9e4c4257a7",
+          "edgeType": "Edge",
+          "source": "ce13990c499f4ff4aaf8776807aad6ba",
+          "target": "2554b43e241a443b8e013c31b6024273",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "f6742b3a044f48fbbaef5cc15c1cb8eb",
+          "edgeType": "Edge",
+          "source": "2554b43e241a443b8e013c31b6024273",
+          "target": "cd63d12cb7a24c78a0a3ef775b8b7f25",
+          "sourcePort": "",
+          "targetPort": ""
+        },
+        {
+          "id": "941d7237bb394a4aa64e6c31da4701da",
+          "edgeType": "Branch",
+          "source": "2be710c275fe476fb56ba644ffd7a3d1",
+          "target": "ce13990c499f4ff4aaf8776807aad6ba",
+          "sourcePort": "",
+          "targetPort": "",
+          "expression": "(function execute() {\n    return vaInputs.outage_options == 'more';\n})()\n",
+          "label": "More"
+        }
+      ]
+    }
+  },
+  "variables": {
+    "1dd8b175dde848868cec9cb123872ff5": {
+      "id": "1dd8b175dde848868cec9cb123872ff5",
+      "name": "list_services",
+      "label": "List Services",
+      "varType": "reference",
+      "table": ""
+    },
+    "fd56b75311f04c7fa3d5e9a848386baf": {
+      "id": "fd56b75311f04c7fa3d5e9a848386baf",
+      "name": "outage_options",
+      "label": "Outage Options",
+      "varType": "reference",
+      "table": ""
+    }
+  }
+}</graph>
+        <key_phrases>ITOM Conversation - Service Owner,Service Status,outage,down,working,system status</key_phrases>
+        <live_agent>false</live_agent>
+        <name>ITOM Conversation - Service Owner</name>
+        <roles/>
+        <sys_class_name>sys_cb_topic</sys_class_name>
+        <sys_created_by>aleck.lin</sys_created_by>
+        <sys_created_on>2018-08-09 05:15:46</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>094f02f913fb1b0058efb1422244b05f</sys_id>
+        <sys_mod_count>9</sys_mod_count>
+        <sys_name>ITOM Conversation - Service Owner</sys_name>
+        <sys_package display_value="Virtual Agent ITOM" source="x_snc_va_itom">122ec67913fb1b0058efb1422244b09f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Virtual Agent ITOM">122ec67913fb1b0058efb1422244b09f</sys_scope>
+        <sys_update_name>sys_cb_topic_094f02f913fb1b0058efb1422244b05f</sys_update_name>
+        <sys_updated_by>aleck.lin</sys_updated_by>
+        <sys_updated_on>2018-08-14 07:51:59</sys_updated_on>
+        <variables/>
+    </sys_cb_topic>
+    <sys_variable_value action="delete_multiple" query="document_key=094f02f913fb1b0058efb1422244b05f"/>
+</record_update>
