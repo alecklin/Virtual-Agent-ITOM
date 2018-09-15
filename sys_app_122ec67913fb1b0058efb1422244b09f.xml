@@ -23,14 +23,14 @@
         <sys_created_by>aleck.lin</sys_created_by>
         <sys_created_on>2018-08-09 05:10:56</sys_created_on>
         <sys_id>122ec67913fb1b0058efb1422244b09f</sys_id>
-        <sys_mod_count>3</sys_mod_count>
+        <sys_mod_count>4</sys_mod_count>
         <sys_updated_by>aleck.lin</sys_updated_by>
-        <sys_updated_on>2018-08-21 18:35:03</sys_updated_on>
+        <sys_updated_on>2018-09-15 05:09:47</sys_updated_on>
         <template/>
         <trackable>true</trackable>
         <user_role/>
         <vendor/>
         <vendor_prefix/>
-        <version>1.1.1</version>
+        <version>1.3.1</version>
     </sys_app>
 </record_update>

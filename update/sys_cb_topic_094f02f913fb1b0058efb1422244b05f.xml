@@ -57,7 +57,7 @@
           "variableId": "1dd8b175dde848868cec9cb123872ff5",
           "id": "ce13990c499f4ff4aaf8776807aad6ba",
           "mode": "external",
-          "script": "(function execute() {\n    var options = [];    \n\n    // query current and future planned outages \n    var gr = new GlideRecord('cmdb_ci_service_auto');\n    gr.addQuery(\"operational_status\",'1') //op status is operational\n    gr.addQuery(\"severity\", \"1\") // severity is critical\n    gr.addQuery(\"owned_by\", gs.getUserID());\n    gr.orderBy('busines_criticality');\n    gr.query();\n\n    while(gr.next()) {\n        options.push({ 'value': gr.getUniqueValue(), 'label': gr.getDisplayValue('name') });\n    }\n    \n    return options;    \n})()\n",
+          "script": "(function execute() {\n    var options = [];    \n\n    // query current and future planned outages \n    var gr = new GlideRecord('cmdb_ci_service_auto');\n    gr.addQuery(\"operational_status\",'1') //op status is operational\n    gr.addQuery(\"severity\", \"1\") // severity is critical\n    //gr.addQuery(\"owned_by\", gs.getUserID());\n    gr.orderBy('busines_criticality');\n    gr.query();\n\n    while(gr.next()) {\n        options.push({ 'value': gr.getUniqueValue(), 'label': gr.getDisplayValue('name') });\n    }\n    \n    return options;    \n})()\n",
           "noRecordsResponseMsg": {
             "value": "No services in critical state",
             "mode": "simple"
@@ -155,7 +155,7 @@
           "stepType": "TextOutput",
           "name": "Single outage",
           "value": {
-            "value": "(function execute() {\n    // query current and future planned outages \n    var gr = new GlideRecord('cmdb_ci_service_auto');\n    gr.addQuery(\"operational_status\",'1') //op status is operational\n    gr.addQuery(\"severity\", \"1\") // severity is critical\n    gr.addQuery(\"owned_by\", gs.getUserID());\n    gr.orderBy('busines_criticality');\n    gr.query();\n\n    if (gr.next()) {\n        vaVars.singleSvc = gr.sys_id + ''\n    }\n    \n    var msg = \"You have exactly one application service in critical state.\";\n\n    return msg;\n})()\n",
+            "value": "(function execute() {\n    // query current and future planned outages \n    var gr = new GlideRecord('cmdb_ci_service_auto');\n    gr.addQuery(\"operational_status\",'1') //op status is operational\n    gr.addQuery(\"severity\", \"1\") // severity is critical\n    //gr.addQuery(\"owned_by\", gs.getUserID());\n    gr.orderBy('busines_criticality');\n    gr.query();\n\n    if (gr.next()) {\n        vaVars.singleSvc = gr.sys_id + ''\n    }\n    \n    var msg = \"You have exactly one application service in critical state.\";\n\n    return msg;\n})()\n",
             "mode": "script"
           },
           "applicability": ""
@@ -565,14 +565,14 @@
         <sys_created_on>2018-08-09 05:15:46</sys_created_on>
         <sys_domain>global</sys_domain>
         <sys_id>094f02f913fb1b0058efb1422244b05f</sys_id>
-        <sys_mod_count>26</sys_mod_count>
+        <sys_mod_count>27</sys_mod_count>
         <sys_name>Application Service Status</sys_name>
         <sys_package display_value="Virtual Agent ITOM" source="x_snc_va_itom">122ec67913fb1b0058efb1422244b09f</sys_package>
         <sys_policy/>
         <sys_scope display_value="Virtual Agent ITOM">122ec67913fb1b0058efb1422244b09f</sys_scope>
         <sys_update_name>sys_cb_topic_094f02f913fb1b0058efb1422244b05f</sys_update_name>
         <sys_updated_by>aleck.lin</sys_updated_by>
-        <sys_updated_on>2018-09-15 04:53:15</sys_updated_on>
+        <sys_updated_on>2018-09-15 05:11:29</sys_updated_on>
         <variables/>
     </sys_cb_topic>
     <sys_variable_value action="delete_multiple" query="document_key=094f02f913fb1b0058efb1422244b05f"/>
